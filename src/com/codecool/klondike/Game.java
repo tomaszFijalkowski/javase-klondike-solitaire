@@ -57,22 +57,25 @@ public class Game extends Pane {
 
     private EventHandler<MouseEvent> onMouseDraggedHandler = e -> {
         Card card = (Card) e.getSource();
-        Pile activePile = card.getContainingPile();
-        if (activePile.getPileType() == Pile.PileType.STOCK)
-            return;
-        double offsetX = e.getSceneX() - dragStartX;
-        double offsetY = e.getSceneY() - dragStartY;
+        if (isCardDraggable(card)) {
 
-        draggedCards.clear();
-        draggedCards.add(card);
+            Pile activePile = card.getContainingPile();
+            if (activePile.getPileType() == Pile.PileType.STOCK)
+                return;
+            double offsetX = e.getSceneX() - dragStartX;
+            double offsetY = e.getSceneY() - dragStartY;
 
-        card.getDropShadow().setRadius(20);
-        card.getDropShadow().setOffsetX(10);
-        card.getDropShadow().setOffsetY(10);
+            draggedCards.clear();
+            draggedCards.add(card);
 
-        card.toFront();
-        card.setTranslateX(offsetX);
-        card.setTranslateY(offsetY);
+            card.getDropShadow().setRadius(20);
+            card.getDropShadow().setOffsetX(10);
+            card.getDropShadow().setOffsetY(10);
+
+            card.toFront();
+            card.setTranslateX(offsetX);
+            card.setTranslateY(offsetY);
+        }
     };
 
     private EventHandler<MouseEvent> onMouseReleasedHandler = e -> {
@@ -111,6 +114,11 @@ public class Game extends Pane {
         //TODO
         System.out.println("Stock refilled from discard pile.");
     }
+
+    public boolean isCardDraggable(Card card) {
+        return !card.isFaceDown();
+    }
+
 
     public boolean isMoveValid(Card card, Pile destPile) {
         //TODO
