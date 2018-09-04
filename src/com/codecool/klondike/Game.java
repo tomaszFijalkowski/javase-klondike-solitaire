@@ -59,7 +59,6 @@ public class Game extends Pane {
     private EventHandler<MouseEvent> onMouseDraggedHandler = e -> {
         Card card = (Card) e.getSource();
         if (isCardDraggable(card)) {
-
             activePile = card.getContainingPile();
             if (activePile.getPileType() == Pile.PileType.STOCK)
                 return;
@@ -83,12 +82,18 @@ public class Game extends Pane {
         if (draggedCards.isEmpty())
             return;
         Card card = (Card) e.getSource();
+
         Pile pile = getValidIntersectingPile(card, tableauPiles);
-        Card cardToUncover = activePile.getSecondCard();
+
         //TODO
         if (pile != null) {
+            if (activePile.cards.size()>1){
+                Card cardToUncover  = activePile.getSecondCard();
+                    if (cardToUncover.isFaceDown()) {
+                        cardToUncover.flip();
+                    }
+            }
             handleValidMove(card, pile);
-            cardToUncover.flip();
         } else {
             draggedCards.forEach(MouseUtil::slideBack);
             draggedCards = null;
