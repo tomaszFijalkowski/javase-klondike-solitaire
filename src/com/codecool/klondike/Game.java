@@ -25,6 +25,7 @@ public class Game extends Pane {
 
     private Pile stockPile;
     private Pile discardPile;
+    private Pile activePile;
     private List<Pile> foundationPiles = FXCollections.observableArrayList();
     private List<Pile> tableauPiles = FXCollections.observableArrayList();
 
@@ -59,7 +60,7 @@ public class Game extends Pane {
         Card card = (Card) e.getSource();
         if (isCardDraggable(card)) {
 
-            Pile activePile = card.getContainingPile();
+            activePile = card.getContainingPile();
             if (activePile.getPileType() == Pile.PileType.STOCK)
                 return;
             double offsetX = e.getSceneX() - dragStartX;
@@ -83,9 +84,11 @@ public class Game extends Pane {
             return;
         Card card = (Card) e.getSource();
         Pile pile = getValidIntersectingPile(card, tableauPiles);
+        Card cardToUncover = activePile.getSecondCard();
         //TODO
         if (pile != null) {
             handleValidMove(card, pile);
+            cardToUncover.flip();
         } else {
             draggedCards.forEach(MouseUtil::slideBack);
             draggedCards = null;
