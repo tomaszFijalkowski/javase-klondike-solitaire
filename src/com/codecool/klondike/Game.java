@@ -19,7 +19,7 @@ import java.util.List;
 
 public class Game extends Pane {
 
-    private List<Card> deck = new ArrayList<>();
+    private List<Card> deck;
 
     private final int PILES_NUM = 7;
 
@@ -76,16 +76,16 @@ public class Game extends Pane {
     };
 
     private EventHandler<MouseEvent> onMouseReleasedHandler = e -> {
-        if (draggedCards.isEmpty())
-            return;
-        Card card = (Card) e.getSource();
-        Pile pile = getValidIntersectingPile(card, tableauPiles);
-        //TODO
-        if (pile != null) {
-            handleValidMove(card, pile);
-        } else {
-            draggedCards.forEach(MouseUtil::slideBack);
-            draggedCards = null;
+        if (!draggedCards.isEmpty()) {
+            Card card = (Card) e.getSource();
+            Pile pile = getValidIntersectingPile(card, tableauPiles);
+            //TODO
+            if (pile != null) {
+                handleValidMove(card, pile);
+            } else {
+                draggedCards.forEach(c -> MouseUtil.slideBack(c));
+                draggedCards.clear();
+            }
         }
     };
 
@@ -97,7 +97,15 @@ public class Game extends Pane {
     public Game() {
         deck = Card.createNewDeck();
         initPiles();
+        setupCards();
         dealCards();
+    }
+
+    private void setupCards() {
+        deck.forEach(card -> {
+            addMouseEventHandlers(card);
+            getChildren().add(card);
+        });
     }
 
     public void addMouseEventHandlers(Card card) {
@@ -194,24 +202,14 @@ public class Game extends Pane {
     }
 
     public void dealCards() {
-
         Iterator<Card> deckIterator = deck.iterator();
-        Iterator<Card> deckIterator1 = deck.iterator();
-
-        deckIterator.forEachRemaining(card -> {
-            addMouseEventHandlers(card);
-            getChildren().add(card);
-        });
-
         for (int i = 0; i < PILES_NUM; i++) {
             for (int j = 0; j < i + 1; j++) {
-                tableauPiles.get(i).addCard(deckIterator1.next());
+                tableauPiles.get(i).addCard(deckIterator.next());
             }
             tableauPiles.get(i).getTopCard().flip();
         }
-
-        deckIterator1.forEachRemaining(card -> stockPile.addCard(card));
-
+        deckIterator.forEachRemaining(card -> stockPile.addCard(card));
     }
 
     public void setTableBackground(Image tableBackground) {
