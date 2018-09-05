@@ -154,18 +154,19 @@ public class Game extends Pane {
 
         //wyrzucic calosc do logiki START
         if (destPile.getPileType().equals(Pile.PileType.TABLEAU)) {
-            boolean rankOneHigher = (!destPile.isEmpty() && card.getRankNumber() == destPile.getTopCard().getRankNumber() - 1);
-            boolean oppositeColour = (!card.getSuit().getColour().equals(destPile.getTopCard().getSuit().getColour()));
-            boolean firstCase = (rankOneHigher && oppositeColour);
-            boolean secondCase = canPutOnEmptyPlace(card, Ranks.KING, destPile);
-
-            return firstCase || secondCase;
+            if (!destPile.isEmpty()){
+                boolean rankOneHigher = (card.getRankNumber() == destPile.getTopCard().getRankNumber() - 1);
+                boolean oppositeColour = (!card.getSuit().getColour().equals(destPile.getTopCard().getSuit().getColour()));
+                return rankOneHigher && oppositeColour;
+            } else {
+                return canPutOnEmptyPlace(card, Ranks.KING, destPile);
+            }
         }
 
         if (destPile.getPileType().equals(Pile.PileType.FOUNDATION)) {
-            return canPutOnEmptyPlace(card, Ranks.ACE, destPile) && hasSameSuitAndIsHigher(card, destPile);
-
+            return canPutOnEmptyPlace(card, Ranks.ACE, destPile) || hasSameSuitAndIsHigher(card, destPile);
         }
+
         return false;
     }
 
