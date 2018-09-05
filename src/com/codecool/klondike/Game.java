@@ -98,11 +98,11 @@ public class Game extends Pane {
     private EventHandler<MouseEvent> onMouseReleasedHandler = e -> {
         if (!draggedCards.isEmpty()) {
             Card card = (Card) e.getSource();
-            Pile pile = getValidIntersectingPile(card, tableauPiles);
+            Pile pile = getValidIntersectingPile(card, tableauPiles, foundationPiles);
             //TODO
             if (pile != null) {
-                if (activePile.cards.size()>1){
-                    Card cardToUncover  = activePile.getSecondCard();
+                if (activePile.cards.size() > 1) {
+                    Card cardToUncover = activePile.getSecondCard();
                     if (cardToUncover.isFaceDown()) {
                         cardToUncover.flip();
                     }
@@ -150,27 +150,40 @@ public class Game extends Pane {
         return !card.isFaceDown();
     }
 
-
     public boolean isMoveValid(Card card, Pile destPile) {
-        //TODO
-        if (destPile.getPileType().equals(Pile.PileType.TABLEAU)){
-            boolean rankOneHigher = (card.getRankNumber() == destPile.getTopCard().getRankNumber()-1);
+
+        //wyrzucic calosc do logiki START
+        if (destPile.getPileType().equals(Pile.PileType.TABLEAU)) {
+            boolean rankOneHigher = (!destPile.isEmpty() && card.getRankNumber() == destPile.getTopCard().getRankNumber() - 1);
             boolean oppositeColour = (!card.getSuit().getColour().equals(destPile.getTopCard().getSuit().getColour()));
             boolean firstCase = (rankOneHigher && oppositeColour);
-            boolean secondCase = (destPile.isEmpty() && card.getRank().equals(Ranks.KING));
+            boolean secondCase = canPutOnEmptyPlace(card, Ranks.KING, destPile);
+
             return firstCase || secondCase;
         }
 
-        if (destPile.getPileType().equals(Pile.PileType.FOUNDATION)){
-            System.out.println("FOUNDATION");
-            return true;
+        if (destPile.getPileType().equals(Pile.PileType.FOUNDATION)) {
+            return canPutOnEmptyPlace(card, Ranks.ACE, destPile) && hasSameSuitAndIsHigher(card, destPile);
+
         }
         return false;
     }
 
-    private Pile getValidIntersectingPile(Card card, List<Pile> piles) {
+    private boolean hasSameSuitAndIsHigher(Card card, Pile destPile) {
+        return !destPile.isEmpty() && destPile.getTopCard().getSuit().equals(card.getSuit())
+                && destPile.getTopCard().getRankNumber() + 1 == card.getRankNumber();
+    }
+
+    private boolean canPutOnEmptyPlace(Card card, Ranks cardRank, Pile destPile) {
+        return destPile.isEmpty() && card.getRank().equals(cardRank);
+    }
+
+    private Pile getValidIntersectingPile(Card card, List<Pile> tableauPiles, List<Pile> foundationPiles) {
         Pile result = null;
-        for (Pile pile : piles) {
+        List<Pile> allPiles = new ArrayList<>(tableauPiles);
+        allPiles.addAll(foundationPiles);
+
+        for (Pile pile : allPiles) {
             if (!pile.equals(card.getContainingPile()) &&
                     isOverPile(card, pile) &&
                     isMoveValid(card, pile))
@@ -180,10 +193,12 @@ public class Game extends Pane {
     }
 
     private boolean isOverPile(Card card, Pile pile) {
-        if (pile.isEmpty())
+        if (pile.isEmpty()) {
             return card.getBoundsInParent().intersects(pile.getBoundsInParent());
-        else
+        } else {
             return card.getBoundsInParent().intersects(pile.getTopCard().getBoundsInParent());
+
+        }
     }
 
     private void handleValidMove(Card card, Pile destPile) {
@@ -200,7 +215,6 @@ public class Game extends Pane {
         MouseUtil.slideToDest(draggedCards, destPile);
         draggedCards.clear();
     }
-
 
     private void initPiles() {
         stockPile = new Pile(Pile.PileType.STOCK, "Stock", STOCK_GAP);
