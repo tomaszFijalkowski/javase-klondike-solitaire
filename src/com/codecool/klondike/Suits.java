@@ -17,10 +17,6 @@ public enum Suits {
     }
 
     public String getColour() {
-        if (this.name == "hearts" || this.name == "diamonds"){
-            return "red";
-        } else {
-            return "black";
-        }
+        return (this.name.equals("hearts") || this.name.equals("diamonds")) ? "red" : "black";
     }
 }
