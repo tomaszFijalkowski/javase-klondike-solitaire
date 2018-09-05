@@ -123,16 +123,18 @@ public class Game extends Pane {
     public boolean isMoveValid(Card card, Pile destPile) {
         //TODO
         if (destPile.getPileType().equals(Pile.PileType.TABLEAU)){
-            System.out.println("TABLEAU");
-            return true;
-
+            boolean rankOneHigher = (card.getRankNumber() == destPile.getTopCard().getRankNumber()-1);
+            boolean oppositeColour = (!card.getSuit().getColour().equals(destPile.getTopCard().getSuit().getColour()));
+            boolean firstCase = (rankOneHigher && oppositeColour);
+            boolean secondCase = (destPile.isEmpty() && card.getRank().equals(Ranks.KING));
+            return firstCase || secondCase;
         }
 
         if (destPile.getPileType().equals(Pile.PileType.FOUNDATION)){
             System.out.println("FOUNDATION");
             return true;
         }
-        return true;
+        return false;
     }
 
     private Pile getValidIntersectingPile(Card card, List<Pile> piles) {
