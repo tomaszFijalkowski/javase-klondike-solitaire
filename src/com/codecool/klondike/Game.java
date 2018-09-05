@@ -84,6 +84,12 @@ public class Game extends Pane {
             Pile pile = getValidIntersectingPile(card, tableauPiles);
             //TODO
             if (pile != null) {
+                if (activePile.cards.size()>1){
+                    Card cardToUncover  = activePile.getSecondCard();
+                    if (cardToUncover.isFaceDown()) {
+                        cardToUncover.flip();
+                    }
+                }
                 handleValidMove(card, pile);
             } else {
                 draggedCards.forEach(c -> MouseUtil.slideBack(c));
