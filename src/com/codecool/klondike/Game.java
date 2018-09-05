@@ -14,6 +14,7 @@ import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.Pane;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -43,7 +44,10 @@ public class Game extends Pane {
             card.moveToPile(discardPile);
             card.flip();
             card.setMouseTransparent(false);
+
             System.out.println("Placed " + card + " to the waste.");
+
+
         }
     };
 
@@ -125,7 +129,23 @@ public class Game extends Pane {
     }
 
     public void refillStockFromDiscard() {
+
+        List<Card> cardsToInverse = discardPile.getCards();
+        Collections.reverse(cardsToInverse);
+        stockPile.clear();
+
+        for (int i = 0; i < cardsToInverse.size(); i++) {
+
+            Card card = cardsToInverse.get(i);
+            System.out.println(card);
+            card.flip();
+            stockPile.addCard(card);
+
+        }
+        discardPile.clear();
+
         //TODO
+
         System.out.println("Stock refilled from discard pile.");
     }
 
@@ -226,6 +246,7 @@ public class Game extends Pane {
             tableauPiles.get(i).getTopCard().flip();
         }
         deckIterator.forEachRemaining(card -> stockPile.addCard(card));
+
     }
 
     public void setTableBackground(Image tableBackground) {
