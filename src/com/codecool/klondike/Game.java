@@ -146,7 +146,7 @@ public class Game extends Pane {
         }
 
         if (destPile.getPileType().equals(Pile.PileType.FOUNDATION)) {
-            return canPutOnEmptyPlace(card, Ranks.ACE, destPile) && hasSameSuitAndIsHigher(card, destPile);
+            return canPutOnEmptyPlace(card, Ranks.ACE, destPile) || hasSameSuitAndIsHigher(card, destPile);
 
         }
         return false;
