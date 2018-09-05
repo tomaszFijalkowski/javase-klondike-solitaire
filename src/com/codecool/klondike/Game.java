@@ -84,6 +84,7 @@ public class Game extends Pane {
             Pile pile = getValidIntersectingPile(card, tableauPiles);
             //TODO
             if (pile != null) {
+                flipTopCard();
                 if (isMoreThanOneCard()) {
                     Card cardToUncover  = activePile.getSecondCard();
                     if (cardToUncover.isFaceDown()) {
@@ -97,6 +98,15 @@ public class Game extends Pane {
             }
         }
     };
+
+    private void flipTopCard(){
+        if (isMoreThanOneCard()) {
+            Card cardToUncover  = activePile.getSecondCard();
+            if (cardToUncover.isFaceDown()) {
+                cardToUncover.flip();
+            }
+        }
+    }
 
     private boolean isMoreThanOneCard() {
         return activePile.cards.size()>1;
