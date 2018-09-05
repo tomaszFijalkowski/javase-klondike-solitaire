@@ -15,4 +15,12 @@ public enum Suits {
     public String getName() {
         return this.name;
     }
+
+    public String getColour() {
+        if (this.name == "hearts" || this.name == "diamonds"){
+            return "red";
+        } else {
+            return "black";
+        }
+    }
 }
