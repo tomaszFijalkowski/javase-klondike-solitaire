@@ -42,6 +42,10 @@ public class Card extends ImageView {
         return rank;
     }
 
+    public int getRankNumber() {
+        return Integer.parseInt(rank.getNumber());
+    }
+
     public boolean isFaceDown() {
         return faceDown;
     }
