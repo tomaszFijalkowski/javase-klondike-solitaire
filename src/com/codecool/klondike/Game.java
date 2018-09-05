@@ -26,6 +26,7 @@ public class Game extends Pane {
     private Pile stockPile;
     private Pile discardPile;
     private Pile activePile;
+    private Card firstClickedTarget = null;
     private List<Pile> foundationPiles = FXCollections.observableArrayList();
     private List<Pile> tableauPiles = FXCollections.observableArrayList();
 
@@ -39,11 +40,27 @@ public class Game extends Pane {
 
     private EventHandler<MouseEvent> onMouseClickedHandler = e -> {
         Card card = (Card) e.getSource();
-        if (card.getContainingPile().getPileType() == Pile.PileType.STOCK) {
-            card.moveToPile(discardPile);
-            card.flip();
-            card.setMouseTransparent(false);
-            System.out.println("Placed " + card + " to the waste.");
+        if (firstClickedTarget == card) {
+            System.out.println("double click");
+            for (Pile pile : foundationPiles) {
+                if (isMoveValid(card, pile)) {
+
+//                    activePile = card.getContainingPile();
+                    card.moveToPile(pile);
+                    //TODO Weronika: odwrocic karte
+                }
+            }
+            firstClickedTarget = null;
+        }
+//        else {
+            firstClickedTarget = card;
+            System.out.println("one click");
+            if (card.getContainingPile().getPileType() == Pile.PileType.STOCK) {
+                card.moveToPile(discardPile);
+                card.flip();
+                card.setMouseTransparent(false);
+                System.out.println("Placed " + card + " to the waste.");
+//            }
         }
     };
 
@@ -81,7 +98,7 @@ public class Game extends Pane {
     private EventHandler<MouseEvent> onMouseReleasedHandler = e -> {
         if (!draggedCards.isEmpty()) {
             Card card = (Card) e.getSource();
-            Pile pile = getValidIntersectingPile(card, tableauPiles, foundationPiles);
+            Pile pile = getValidIntersectingPile(card);
             //TODO
             if (pile != null) {
                 if (activePile.cards.size() > 1) {
@@ -135,7 +152,6 @@ public class Game extends Pane {
 
     public boolean isMoveValid(Card card, Pile destPile) {
 
-        //wyrzucic calosc do logiki START
         if (destPile.getPileType().equals(Pile.PileType.TABLEAU)) {
             boolean rankOneHigher = (!destPile.isEmpty() && card.getRankNumber() == destPile.getTopCard().getRankNumber() - 1);
             boolean oppositeColour = (!card.getSuit().getColour().equals(destPile.getTopCard().getSuit().getColour()));
@@ -146,7 +162,7 @@ public class Game extends Pane {
         }
 
         if (destPile.getPileType().equals(Pile.PileType.FOUNDATION)) {
-            return canPutOnEmptyPlace(card, Ranks.ACE, destPile) && hasSameSuitAndIsHigher(card, destPile);
+            return canPutOnEmptyPlace(card, Ranks.ACE, destPile) || hasSameSuitAndIsHigher(card, destPile);
 
         }
         return false;
@@ -161,7 +177,7 @@ public class Game extends Pane {
         return destPile.isEmpty() && card.getRank().equals(cardRank);
     }
 
-    private Pile getValidIntersectingPile(Card card, List<Pile> tableauPiles, List<Pile> foundationPiles) {
+    private Pile getValidIntersectingPile(Card card) {
         Pile result = null;
         List<Pile> allPiles = new ArrayList<>(tableauPiles);
         allPiles.addAll(foundationPiles);
