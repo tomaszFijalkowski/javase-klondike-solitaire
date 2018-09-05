@@ -43,28 +43,30 @@ public class Game extends Pane {
     private EventHandler<MouseEvent> onMouseClickedHandler = e -> {
         Card card = (Card) e.getSource();
         activePile = card.getContainingPile();
-        if (firstClickedTarget == card) {
-            System.out.println("double click");
-            for (Pile pile : foundationPiles) {
-                if (isMoveValid(card, pile)) {
+        if (isCardDraggable(card)){
+            if (firstClickedTarget == card) {
+                System.out.println("double click");
+                for (Pile pile : foundationPiles) {
+                    if (isMoveValid(card, pile)) {
 
-                    card.moveToPile(pile);
+                        card.moveToPile(pile);
+                    }
                 }
+                if (activePile.getTopCard().isFaceDown()){
+                    activePile.getTopCard().flip();
+                }
+                firstClickedTarget = null;
             }
-            if (activePile.getTopCard().isFaceDown()){
-                activePile.getTopCard().flip();
+    //        else {
+            firstClickedTarget = card;
+            System.out.println("one click");
+            if (card.getContainingPile().getPileType() == Pile.PileType.STOCK) {
+                card.moveToPile(discardPile);
+                card.flip();
+                card.setMouseTransparent(false);
+                System.out.println("Placed " + card + " to the waste.");
+                //            }
             }
-            firstClickedTarget = null;
-        }
-//        else {
-        firstClickedTarget = card;
-        System.out.println("one click");
-        if (card.getContainingPile().getPileType() == Pile.PileType.STOCK) {
-            card.moveToPile(discardPile);
-            card.flip();
-            card.setMouseTransparent(false);
-            System.out.println("Placed " + card + " to the waste.");
-//            }
         }
     };
 
@@ -126,7 +128,9 @@ public class Game extends Pane {
 //
                 if (isOnTableau() && (activePile.cards.size() > draggedCards.size())) {
                     Card cardToUncover = activePile.cards.get(activePile.cards.size() - draggedCards.size() - 1);
-                    cardToUncover.flip();
+                    if (cardToUncover.isFaceDown()) {
+                        cardToUncover.flip();
+                    }
                 }
                 handleValidMove(card, pile);
                 } else {
@@ -176,9 +180,8 @@ public class Game extends Pane {
         Collections.reverse(cardsToInverse);
         stockPile.clear();
 
-        for (int i = 0; i < cardsToInverse.size(); i++) {
+        for (Card card : cardsToInverse) {
 
-            Card card = cardsToInverse.get(i);
             card.flip();
             stockPile.addCard(card);
 
@@ -190,8 +193,19 @@ public class Game extends Pane {
         System.out.println("Stock refilled from discard pile.");
     }
 
-    public boolean isCardDraggable(Card card) {
-        return !card.isFaceDown();
+    private boolean isCardDraggable(Card card) {
+
+        boolean topStockCard = card == stockPile.getTopCard();
+        boolean topDiscardCard = card == discardPile.getTopCard();
+        boolean topCard = card == card.getContainingPile().getTopCard();
+        boolean foundationCard = card.getContainingPile().getPileType().equals(Pile.PileType.FOUNDATION);
+        boolean tableauCard = card.getContainingPile().getPileType().equals(Pile.PileType.TABLEAU);
+        boolean uncoveredCard = !card.isFaceDown();
+        System.out.println(topStockCard);
+        System.out.println();
+        System.out.println(tableauCard);
+        System.out.println(uncoveredCard);
+        return  tableauCard && uncoveredCard || foundationCard && topCard || topStockCard || topDiscardCard;
     }
 
     public boolean isMoveValid(Card card, Pile destPile) {
