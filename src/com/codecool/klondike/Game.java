@@ -48,10 +48,13 @@ public class Game extends Pane {
                 System.out.println("double click");
                 for (Pile pile : foundationPiles) {
                     if (isMoveValid(card, pile)) {
-
                         card.moveToPile(pile);
                     }
                 }
+
+                // Sprawdzenie czy gra jest wygrana
+                System.out.println("GAME IS WON: "+isGameWon());
+
                 if (activePile.getTopCard().isFaceDown()){
                     activePile.getTopCard().flip();
                 }
@@ -140,6 +143,7 @@ public class Game extends Pane {
                     draggedCards.clear();
                 }
             }
+        System.out.println("CAN AUTOEND GAME: "+canAutoEndGame());
     };
 
     private boolean isOnTableau(){
@@ -151,8 +155,22 @@ public class Game extends Pane {
     }
 
     public boolean isGameWon() {
-        //TODO
-        return false;
+        int foundationCards = 0;
+        for (Pile pile : foundationPiles){
+            foundationCards += pile.numOfCards();
+        }
+        return foundationCards == 52;
+    }
+
+    public boolean canAutoEndGame(){
+        for (Pile pile : tableauPiles){
+            for (Card card : pile.getCards()) {
+                if (card.isFaceDown()){
+                    return false;
+                }
+            }
+        }
+        return stockPile.isEmpty() && discardPile.isEmpty();
     }
 
     public Game() {
@@ -196,17 +214,12 @@ public class Game extends Pane {
     }
 
     private boolean isCardDraggable(Card card) {
-
         boolean topStockCard = card == stockPile.getTopCard();
         boolean topDiscardCard = card == discardPile.getTopCard();
         boolean topCard = card == card.getContainingPile().getTopCard();
         boolean foundationCard = card.getContainingPile().getPileType().equals(Pile.PileType.FOUNDATION);
         boolean tableauCard = card.getContainingPile().getPileType().equals(Pile.PileType.TABLEAU);
         boolean uncoveredCard = !card.isFaceDown();
-        System.out.println(topStockCard);
-        System.out.println();
-        System.out.println(tableauCard);
-        System.out.println(uncoveredCard);
         return  tableauCard && uncoveredCard || foundationCard && topCard || topStockCard || topDiscardCard;
     }
 
@@ -266,6 +279,10 @@ public class Game extends Pane {
         if (destPile.isEmpty()) {
             if (destPile.getPileType().equals(Pile.PileType.FOUNDATION))
                 msg = String.format("Placed %s to the foundation.", card);
+
+                // Sprawdzenie czy gra jest wygrana
+                System.out.println("GAME IS WON: "+isGameWon());
+
             if (destPile.getPileType().equals(Pile.PileType.TABLEAU))
                 msg = String.format("Placed %s to a new pile.", card);
         } else {
