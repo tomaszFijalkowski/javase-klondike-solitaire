@@ -44,7 +44,7 @@ public class Game extends Pane {
         Card card = (Card) e.getSource();
         activePile = card.getContainingPile();
         if (isCardDraggable(card)){
-            if (firstClickedTarget == card) {
+            if (firstClickedTarget == card && card == activePile.getTopCard())  {
                 System.out.println("double click");
                 for (Pile pile : foundationPiles) {
                     if (isMoveValid(card, pile)) {
