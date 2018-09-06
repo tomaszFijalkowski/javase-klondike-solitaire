@@ -2,6 +2,7 @@ package com.codecool.klondike;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
@@ -13,10 +14,7 @@ import javafx.scene.layout.BackgroundRepeat;
 import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.Pane;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class Game extends Pane {
 
@@ -46,6 +44,7 @@ public class Game extends Pane {
         if (isCardDraggable(card)){
             if (firstClickedTarget == card && card == activePile.getTopCard())  {
                 System.out.println("double click");
+
                 for (Pile pile : foundationPiles) {
                     if (isMoveValid(card, pile)) {
                         card.moveToPile(pile);
@@ -143,9 +142,9 @@ public class Game extends Pane {
                     draggedCards.clear();
                 }
             }
-            
+
             if(canAutoEndGame()){
-                moveCardsFromTableauToFundations();
+                moveCardsFromTableauToFoundations();
             }
     };
 
@@ -173,6 +172,8 @@ public class Game extends Pane {
                 }
             }
         }
+        System.out.println("STOCK PILE IS EMPTY = "+ stockPile.isEmpty());
+        System.out.println("DISCARD PILE IS EMPTY = "+ discardPile.isEmpty());
         return stockPile.isEmpty() && discardPile.isEmpty();
     }
 
@@ -198,7 +199,6 @@ public class Game extends Pane {
     }
 
     public void refillStockFromDiscard() {
-
         List<Card> cardsToInverse = discardPile.getCards();
         Collections.reverse(cardsToInverse);
         stockPile.clear();
@@ -272,7 +272,6 @@ public class Game extends Pane {
             return card.getBoundsInParent().intersects(pile.getBoundsInParent());
         } else {
             return card.getBoundsInParent().intersects(pile.getTopCard().getBoundsInParent());
-
         }
     }
 
@@ -286,11 +285,11 @@ public class Game extends Pane {
                 gameWonAlert();
             }
         }
-
             if (destPile.getPileType().equals(Pile.PileType.TABLEAU))
                 msg = String.format("Placed %s to a new pile.", card);
         } else {
             msg = String.format("Placed %s to %s.", card, destPile.getTopCard());
+
         }
         System.out.println(msg);
         MouseUtil.slideToDest(draggedCards, destPile);
@@ -338,7 +337,6 @@ public class Game extends Pane {
             tableauPiles.get(i).getTopCard().flip();
         }
         deckIterator.forEachRemaining(card -> stockPile.addCard(card));
-
     }
 
     public void setTableBackground(Image tableBackground) {
@@ -355,7 +353,40 @@ public class Game extends Pane {
         alert.showAndWait();
     }
 
-    public void moveCardsFromTableauToFundations(){
-        System.out.println("MOVING CARDS FROM TABLEAU TO FUNDATIONS");
+    public void moveCardsFromTableauToFoundations(){
+        int totalFoundationCards = 0;
+        while (totalFoundationCards!=52){
+            for (Pile pile : tableauPiles) {
+                ObservableList<Card> cardsCopy = FXCollections.observableArrayList();
+                for (Card card : pile.getCards()) {
+                    cardsCopy.add(card);
+                }
+
+                for (Card card : cardsCopy) {
+                    totalFoundationCards = 0;
+                    for (Pile foundationPile : foundationPiles) {
+                        if (foundationPile.isEmpty()) {
+                            if (card.getRank().equals(Ranks.ACE)) {
+                                slideIntoFoundations(card, foundationPile);
+                            }
+                        } else if ((Objects.equals(card.getSuit(), foundationPile.getTopCard().getSuit()))
+                                && card.getRankNumber() == foundationPile.getTopCard().getRankNumber() + 1) {
+                            slideIntoFoundations(card, foundationPile);
+                        }
+                        totalFoundationCards+=foundationPile.numOfCards();
+                    }
+                }
+            }
+        }
+        if(isGameWon()){
+            gameWonAlert();
+        }
+    }
+
+    public void slideIntoFoundations(Card card, Pile destPile){
+        draggedCards.add(card);
+        MouseUtil.slideToDest(draggedCards, destPile);
+        card.moveToPile(destPile);
+        draggedCards.clear();
     }
 }
