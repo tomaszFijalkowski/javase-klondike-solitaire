@@ -52,15 +52,16 @@ public class Game extends Pane {
                     }
                 }
 
-                // Sprawdzenie czy gra jest wygrana
-                System.out.println("GAME IS WON: "+isGameWon());
+                if(isGameWon()){
+                    gameWonAlert();
+                }
 
                 if (activePile.getTopCard().isFaceDown()){
                     activePile.getTopCard().flip();
                 }
                 firstClickedTarget = null;
             }
-    //        else {
+
             firstClickedTarget = card;
             System.out.println("one click");
             if (card.getContainingPile().getPileType() == Pile.PileType.STOCK) {
@@ -68,7 +69,6 @@ public class Game extends Pane {
                 card.flip();
                 card.setMouseTransparent(false);
                 System.out.println("Placed " + card + " to the waste.");
-                //            }
             }
         }
     };
@@ -224,7 +224,6 @@ public class Game extends Pane {
     }
 
     public boolean isMoveValid(Card card, Pile destPile) {
-
         if (destPile.getPileType().equals(Pile.PileType.TABLEAU)) {
             if (!destPile.isEmpty()){
                 boolean rankOneHigher = (card.getRankNumber() == destPile.getTopCard().getRankNumber() - 1);
@@ -277,11 +276,13 @@ public class Game extends Pane {
     private void handleValidMove(Card card, Pile destPile) {
         String msg = null;
         if (destPile.isEmpty()) {
-            if (destPile.getPileType().equals(Pile.PileType.FOUNDATION))
+            if (destPile.getPileType().equals(Pile.PileType.FOUNDATION)) {
                 msg = String.format("Placed %s to the foundation.", card);
 
-                // Sprawdzenie czy gra jest wygrana
-                System.out.println("GAME IS WON: "+isGameWon());
+            if (isGameWon()) {
+                gameWonAlert();
+            }
+        }
 
             if (destPile.getPileType().equals(Pile.PileType.TABLEAU))
                 msg = String.format("Placed %s to a new pile.", card);
@@ -343,4 +344,11 @@ public class Game extends Pane {
                 BackgroundPosition.CENTER, BackgroundSize.DEFAULT)));
     }
 
+    public void gameWonAlert(){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(null);
+        alert.setHeaderText(null);
+        alert.setContentText("Congratulations, you won!");
+        alert.showAndWait();
+    }
 }
