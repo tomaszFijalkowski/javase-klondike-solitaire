@@ -130,7 +130,7 @@ public class Game extends Pane {
             //TODO
             if (pile != null) {
                 System.out.println(activePile.cards.size() > draggedCards.size());
-//
+
                 if (isOnTableau() && (activePile.cards.size() > draggedCards.size())) {
                     Card cardToUncover = activePile.cards.get(activePile.cards.size() - draggedCards.size() - 1);
                     if (cardToUncover.isFaceDown()) {
@@ -143,7 +143,10 @@ public class Game extends Pane {
                     draggedCards.clear();
                 }
             }
-        System.out.println("CAN AUTOEND GAME: "+canAutoEndGame());
+            
+            if(canAutoEndGame()){
+                moveCardsFromTableauToFundations();
+            }
     };
 
     private boolean isOnTableau(){
@@ -350,5 +353,9 @@ public class Game extends Pane {
         alert.setHeaderText(null);
         alert.setContentText("Congratulations, you won!");
         alert.showAndWait();
+    }
+
+    public void moveCardsFromTableauToFundations(){
+        System.out.println("MOVING CARDS FROM TABLEAU TO FUNDATIONS");
     }
 }
