@@ -18,6 +18,9 @@ public class Card extends ImageView {
     private Pile containingPile;
     private DropShadow dropShadow;
 
+
+    static boolean basicPattern = false;
+
     static Image cardBackImage;
     private static final Map<String, Image> cardFaceImages = new HashMap<>();
     public static final int WIDTH = 150;
@@ -32,6 +35,14 @@ public class Card extends ImageView {
         frontFace = cardFaceImages.get(getShortName());
         setImage(faceDown ? backFace : frontFace);
         setEffect(dropShadow);
+    }
+
+    public static Image getCardBackImage() {
+        return cardBackImage;
+    }
+
+    public static void setCardBackImage(Image cardBackImage) {
+        Card.cardBackImage = cardBackImage;
     }
 
     public Suits getSuit() {
@@ -102,9 +113,25 @@ public class Card extends ImageView {
         return result;
     }
 
+    public static void changeCardSuit() {
+//        if (basicPattern) {
+//            cardBackImage = new Image("card_images/card_back2.png");
+//        } else {
+//            cardBackImage = new Image("card_images/card_back.png");
+//        }
+        basicPattern = !basicPattern;
+        System.out.println(basicPattern);
+    }
+
 
     public static void loadCardImages() {
-        cardBackImage = new Image("card_images/card_back.png");
+        if (basicPattern) {
+            cardBackImage = new Image("card_images/card_back.png");
+        } else {
+            cardBackImage = new Image("card_images/card_back2.png");
+        }
+        System.out.println("HERE " + basicPattern);
+//        cardBackImage = new Image("card_images/card_back.png");
         for (Suits suit : Suits.values())  {
             String suitName = suit.getName();
             for (Ranks rank : Ranks.values()) {
