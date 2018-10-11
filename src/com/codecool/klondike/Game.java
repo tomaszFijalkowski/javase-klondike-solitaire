@@ -1,7 +1,6 @@
 package com.codecool.klondike;
 
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.scene.control.Alert;
@@ -21,6 +20,7 @@ public class Game extends Pane {
     private List<Card> deck;
 
     private final int PILES_NUM = 7;
+    private final int WHOLE_CARD_DECK = 52;
 
     private Pile stockPile;
     private Pile discardPile;
@@ -126,7 +126,6 @@ public class Game extends Pane {
         if (!draggedCards.isEmpty()) {
             Card card = (Card) e.getSource();
             Pile pile = getValidIntersectingPile(card);
-            //TODO
             if (pile != null) {
                 System.out.println(activePile.cards.size() > draggedCards.size());
 
@@ -161,7 +160,7 @@ public class Game extends Pane {
         for (Pile pile : foundationPiles){
             foundationCards += pile.numOfCards();
         }
-        return foundationCards == 52;
+        return foundationCards == WHOLE_CARD_DECK;
     }
 
     public boolean canAutoEndGame(){
@@ -210,8 +209,6 @@ public class Game extends Pane {
 
         }
         discardPile.clear();
-
-        //TODO
 
         System.out.println("Stock refilled from discard pile.");
     }
@@ -355,7 +352,7 @@ public class Game extends Pane {
 
     public void moveCardsFromTableauToFoundations(){
         int totalFoundationCards = 0;
-        while (totalFoundationCards!=52){
+        while (totalFoundationCards!=WHOLE_CARD_DECK ){
             for (Pile pile : tableauPiles) {
                 ObservableList<Card> cardsCopy = FXCollections.observableArrayList();
                 for (Card card : pile.getCards()) {
